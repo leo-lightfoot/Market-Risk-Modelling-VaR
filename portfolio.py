@@ -18,72 +18,44 @@ class Portfolio:
         self.returns_history = pd.DataFrame(columns=['Date', 'Return'])
         self._load_pricing_data()
         
+    def _load_instrument_data(self, instrument_name, file_name):
+        """Load instrument data from NAV_returns_Data directory
+        
+        Args:
+            instrument_name: Name to use for the instrument in the portfolio
+            file_name: CSV file name in NAV_returns_Data directory
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        data_dir = os.path.join(os.getcwd(), 'NAV_returns_Data')
+        try:
+            pricing_file = os.path.join(data_dir, file_name)
+            self.instruments[instrument_name] = pd.read_csv(pricing_file, index_col=0, parse_dates=True)
+            self.instruments[instrument_name] = self.instruments[instrument_name].asfreq('D', method='ffill')
+            print(f"Loaded {instrument_name} data with {len(self.instruments[instrument_name])} observations")
+            return True
+        except FileNotFoundError:
+            print(f"Error: {instrument_name} pricing data not found at {pricing_file}")
+            return False
+        
     def _load_pricing_data(self):
         """Load instrument pricing data from NAV_returns_Data directory"""
-        data_dir = os.path.join(os.getcwd(), 'NAV_returns_Data')
+        # Dictionary mapping instrument names to their data files
+        instrument_files = {
+            'Gold': 'synthetic_outputs_gold.csv',
+            'Apple': 'synthetic_outputs_apple.csv',
+            'JnJ': 'synthetic_outputs_jnj.csv',
+            'PG': 'synthetic_outputs_pg.csv',
+            'EM': 'synthetic_outputs_em.csv',
+            'Private Credit': 'synthetic_outputs_pc.csv',
+            'TIPS ETF': 'synthetic_outputs_tips.csv',
+            '10Y Bond': 'synthetic_outputs_10ybond.csv'
+        }
         
-        # Load Gold data
-        try:
-            gold_pricing_file = os.path.join(data_dir, 'synthetic_outputs_gold.csv')
-            self.instruments['Gold'] = pd.read_csv(gold_pricing_file, index_col=0, parse_dates=True)
-            self.instruments['Gold'] = self.instruments['Gold'].asfreq('D', method='ffill')
-            print(f"Loaded Gold data with {len(self.instruments['Gold'])} observations")
-        except FileNotFoundError:
-            print("Error: Gold pricing data not found.")
-        
-        # Load Apple data
-        try:
-            apple_pricing_file = os.path.join(data_dir, 'synthetic_outputs_apple.csv')
-            self.instruments['Apple'] = pd.read_csv(apple_pricing_file, index_col=0, parse_dates=True)
-            self.instruments['Apple'] = self.instruments['Apple'].asfreq('D', method='ffill')
-            print(f"Loaded Apple data with {len(self.instruments['Apple'])} observations")
-        except FileNotFoundError:
-            print("Error: Apple pricing data not found.")
-        
-        # Load Johnson & Johnson data
-        try:
-            jnj_pricing_file = os.path.join(data_dir, 'synthetic_outputs_jnj.csv')
-            self.instruments['JnJ'] = pd.read_csv(jnj_pricing_file, index_col=0, parse_dates=True)
-            self.instruments['JnJ'] = self.instruments['JnJ'].asfreq('D', method='ffill')
-            print(f"Loaded Johnson & Johnson data with {len(self.instruments['JnJ'])} observations")
-        except FileNotFoundError:
-            print("Error: Johnson & Johnson pricing data not found.")
-        
-        # Load Procter & Gamble data
-        try:
-            pg_pricing_file = os.path.join(data_dir, 'synthetic_outputs_pg.csv')
-            self.instruments['PG'] = pd.read_csv(pg_pricing_file, index_col=0, parse_dates=True)
-            self.instruments['PG'] = self.instruments['PG'].asfreq('D', method='ffill')
-            print(f"Loaded Procter & Gamble data with {len(self.instruments['PG'])} observations")
-        except FileNotFoundError:
-            print("Error: Procter & Gamble pricing data not found.")
-        
-        # Load Emerging Markets data
-        try:
-            em_pricing_file = os.path.join(data_dir, 'synthetic_outputs_em.csv')
-            self.instruments['EM'] = pd.read_csv(em_pricing_file, index_col=0, parse_dates=True)
-            self.instruments['EM'] = self.instruments['EM'].asfreq('D', method='ffill')
-            print(f"Loaded Emerging Markets data with {len(self.instruments['EM'])} observations")
-        except FileNotFoundError:
-            print("Error: Emerging Markets pricing data not found.")
-
-        # Load Private Credit data
-        try:
-            pc_pricing_file = os.path.join(data_dir, 'synthetic_outputs_pc.csv')
-            self.instruments['Private Credit'] = pd.read_csv(pc_pricing_file, index_col=0, parse_dates=True)
-            self.instruments['Private Credit'] = self.instruments['Private Credit'].asfreq('D', method='ffill')
-            print(f"Loaded Private Credit data with {len(self.instruments['Private Credit'])} observations")
-        except FileNotFoundError:
-            print("Error: Private Credit pricing data not found.")
-
-        # Load TIPS ETF data
-        try:
-            tips_pricing_file = os.path.join(data_dir, 'synthetic_outputs_tips.csv')
-            self.instruments['TIPS ETF'] = pd.read_csv(tips_pricing_file, index_col=0, parse_dates=True)
-            self.instruments['TIPS ETF'] = self.instruments['TIPS ETF'].asfreq('D', method='ffill')
-            print(f"Loaded TIPS ETF data with {len(self.instruments['TIPS ETF'])} observations")
-        except FileNotFoundError:
-            print("Error: TIPS ETF pricing data not found.")
+        # Load all instruments
+        for instrument_name, file_name in instrument_files.items():
+            self._load_instrument_data(instrument_name, file_name)
         
         # Align datasets to common date range if they exist
         self._align_datasets()
@@ -447,7 +419,7 @@ def plot_portfolio_performance(portfolio, save_prefix):
     print(f"Performance charts saved with prefix: {save_prefix}")
 
 def main():
-    # Modified allocation with 80% cash and 20% equally distributed
+    # Modified allocation with all assets
     custom_allocation = {
         'Gold': 10.0,
         'Apple': 10.0,
@@ -456,7 +428,8 @@ def main():
         'EM': 10.0,
         'Private Credit': 10.0,
         'TIPS ETF': 10.0,
-        'Cash': 30.0
+        '10Y Bond': 10.0,
+        'Cash': 20.0
     }
     
     # Output directory
