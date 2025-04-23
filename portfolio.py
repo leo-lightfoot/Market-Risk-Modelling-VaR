@@ -50,7 +50,8 @@ class Portfolio:
             'EM': 'synthetic_outputs_em.csv',
             'Private Credit': 'synthetic_outputs_pc.csv',
             'TIPS ETF': 'synthetic_outputs_tips.csv',
-            '10Y Bond': 'synthetic_outputs_10ybond.csv'
+            '10Y Bond': 'synthetic_outputs_10ybond.csv',
+            'SPX ATM Call': 'synthetic_outputs_spx_atm_call.csv'
         }
         
         # Load all instruments
@@ -419,7 +420,8 @@ def plot_portfolio_performance(portfolio, save_prefix):
     print(f"Performance charts saved with prefix: {save_prefix}")
 
 def main():
-    # Modified allocation with all assets
+    # Modified allocation with all assets - reducing SPX ATM Call allocation
+    # due to high volatility and increasing cash position
     custom_allocation = {
         'Gold': 10.0,
         'Apple': 10.0,
@@ -429,11 +431,13 @@ def main():
         'Private Credit': 10.0,
         'TIPS ETF': 10.0,
         '10Y Bond': 10.0,
-        'Cash': 20.0
+        'SPX ATM Call': 10.0,  # Minimal allocation due to extreme volatility
+        'Cash': 10.0  # Higher cash allocation for stability
     }
     
     # Output directory
     output_dir = 'portfolio_results'
+    os.makedirs(output_dir, exist_ok=True)
     
     # Create portfolio with custom allocation
     portfolio = create_portfolio_with_custom_allocation(custom_allocation)
