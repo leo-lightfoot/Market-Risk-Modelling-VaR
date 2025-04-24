@@ -106,12 +106,15 @@ output_df = pd.DataFrame({
     'Synthetic_Returns': predicted_returns
 }, index=log_returns.index)
 
-# Save the results to CSV
+# Save the results to CSV with date column included
+# Reset index to make Date a column in the output CSV
+output_df_with_date = output_df.reset_index()
+
 # Ensure the NAV_returns_Data directory exists
 nav_returns_dir = os.path.join(project_root, "NAV_returns_Data")
 os.makedirs(nav_returns_dir, exist_ok=True)
 output_path = os.path.join(nav_returns_dir, "synthetic_outputs_apple.csv")
-output_df.to_csv(output_path)
+output_df_with_date.to_csv(output_path, index=False)
 print(f"Synthetic NAV and returns saved to {output_path}")
 
 # Plot Final NAV Prediction x Actual

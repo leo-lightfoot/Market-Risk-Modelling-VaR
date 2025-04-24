@@ -51,7 +51,9 @@ class Portfolio:
             'Private Credit': 'synthetic_outputs_pc.csv',
             'TIPS ETF': 'synthetic_outputs_tips.csv',
             '10Y Bond': 'synthetic_outputs_10ybond.csv',
-            'SPX ATM Call': 'synthetic_outputs_spx_atm_call.csv'
+            'SPX ATM Call': 'synthetic_outputs_spx_atm_call.csv',
+            'Inflation Swap': 'synthetic_outputs_swap.csv',
+            'Convertible Bond': 'synthetic_outputs_cwb.csv'
         }
         
         # Load all instruments
@@ -424,15 +426,17 @@ def main():
     # due to high volatility and increasing cash position
     custom_allocation = {
         'Gold': 10.0,
-        'Apple': 10.0,
-        'JnJ': 10.0,
-        'PG': 10.0,
+        'Apple': 5.0,
+        'JnJ': 5.0,
+        'PG': 5.0,
         'EM': 10.0,
         'Private Credit': 10.0,
         'TIPS ETF': 10.0,
         '10Y Bond': 10.0,
-        'SPX ATM Call': 10.0,  # Minimal allocation due to extreme volatility
-        'Cash': 10.0  # Higher cash allocation for stability
+        #'SPX ATM Call': 10.0,
+        'Convertible Bond' : 10.0,
+        'Inflation Swap' :10.0,
+        'Cash': 15.0  
     }
     
     # Output directory

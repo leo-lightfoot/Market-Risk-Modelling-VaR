@@ -1,0 +1,11 @@
+# Ignore synthetic outputs
+NAV_returns_Data/synthetic_outputs_spx_atm_call.csv
+
+# Ignore pricing model script
+SPX_1M_ATM_Call/pricing_model_spx_atm_call.py
+
+# Ignore price comparison plot
+SPX_1M_ATM_Call/price_comparison_spx_atm_call.png
+
+# Ignore test script
+SPX_1M_ATM_Call/test.py

@@ -85,14 +85,14 @@ DURATION = 9  # approximate duration in years
 df["Actual_Price"] = 100 / (1 + df[target_column] / 100)**DURATION
 df["Synthetic_Price"] = 100 / (1 + df["Predicted_Yield"] / 100)**DURATION
 
-# Compute returns
-df["Actual_Returns"] = df["Actual_Price"].pct_change()
-df["Synthetic_Returns"] = df["Synthetic_Price"].pct_change()
+# Compute log returns instead of simple returns
+df["Actual_Returns"] = np.log(df["Actual_Price"] / df["Actual_Price"].shift(1))
+df["Synthetic_Returns"] = np.log(df["Synthetic_Price"] / df["Synthetic_Price"].shift(1))
 
-# Create DataFrame with actual and synthetic values
+# Create DataFrame with actual and synthetic values using the NAV naming convention
 output_df = pd.DataFrame({
-    'Actual_Price': df["Actual_Price"],
-    'Synthetic_Price': df["Synthetic_Price"],
+    'Actual_NAV': df["Actual_Price"],
+    'Synthetic_NAV': df["Synthetic_Price"],
     'Actual_Returns': df["Actual_Returns"],
     'Synthetic_Returns': df["Synthetic_Returns"]
 }, index=df.index)
@@ -100,34 +100,37 @@ output_df = pd.DataFrame({
 # Drop any NaN values (from returns calculation)
 output_df = output_df.dropna()
 
-# Save the results to CSV
+# Save the results to CSV with date column included
+# Reset index to make Date a column in the output CSV
+output_df_with_date = output_df.reset_index()
+    
 # Ensure the NAV_returns_Data directory exists
 nav_returns_dir = os.path.join(project_root, "NAV_returns_Data")
 os.makedirs(nav_returns_dir, exist_ok=True)
 output_path = os.path.join(nav_returns_dir, "synthetic_outputs_10ybond.csv")
-output_df.to_csv(output_path)
-print(f"Synthetic price and returns saved to {output_path}")
+output_df_with_date.to_csv(output_path, index=False)
+print(f"Synthetic NAV and returns saved to {output_path}")
 
 # Plot Final Price Prediction x Actual
 plt.figure(figsize=(12, 8))
-plt.plot(df["Actual_Price"], label="Actual Price", linewidth=2)
-plt.plot(df["Synthetic_Price"], label="Synthetic Price", linestyle="--", linewidth=2)
-plt.title(f"10Y Bond Price Prediction | Ridge Regression (R² = {r2_value:.4f})", fontsize=12)
+plt.plot(df["Actual_Price"], label="Actual NAV", linewidth=2)
+plt.plot(df["Synthetic_Price"], label="Synthetic NAV", linestyle="--", linewidth=2)
+plt.title(f"10Y Bond NAV Prediction | Ridge Regression (R² = {r2_value:.4f})", fontsize=12)
 plt.xlabel("Date", fontsize=10)
-plt.ylabel("Price", fontsize=10)
+plt.ylabel("NAV", fontsize=10)
 plt.legend(fontsize=10)
 plt.grid(True)
 plt.tight_layout()
 
 # Save the plot
-plot_path = os.path.join(current_dir, "price_comparison_10ybond.png")
+plot_path = os.path.join(current_dir, "nav_comparison_10ybond.png")
 plt.savefig(plot_path, dpi=300, bbox_inches='tight')
 print(f"Plot saved to {plot_path}")
 plt.show()
 
 # Print some statistics
-print("\nSynthetic Price Statistics:")
-print("Correlation with Actual Price:", 
+print("\nSynthetic NAV Statistics:")
+print("Correlation with Actual NAV:", 
       np.corrcoef(df["Actual_Price"].loc[output_df.index], df["Synthetic_Price"].loc[output_df.index])[0,1])
 print("Mean Absolute Error:", 
       np.mean(np.abs(df["Actual_Price"].loc[output_df.index] - df["Synthetic_Price"].loc[output_df.index])))
